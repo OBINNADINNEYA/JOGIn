@@ -35,6 +35,38 @@
   --accent-color: #1EB8B9;
 }
 
+/* Override styles for light theme */
+.light-theme .premium-card {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.1);
+}
+
+.light-theme .heading-gradient {
+  background: linear-gradient(to right, #1EB8B9, #30CFD0);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.light-theme .text-white {
+  color: #16161A;
+}
+
+.light-theme .text-gray-400 {
+  color: #4a5568;
+}
+
+.light-theme .premium-button {
+  background: linear-gradient(to right, #1EB8B9, #30CFD0);
+}
+
+.light-theme .premium-button-secondary {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #16161A;
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(

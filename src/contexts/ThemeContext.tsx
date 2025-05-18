@@ -26,6 +26,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     // Check if theme is stored in local storage
     try {
       const savedTheme = localStorage.getItem('jogIn-theme') as ThemeType;
+      console.log('Retrieved theme from localStorage:', savedTheme);
       if (savedTheme && (savedTheme === 'dark' || savedTheme === 'light')) {
         setTheme(savedTheme);
       }
@@ -38,18 +39,31 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     if (!mounted) return;
     
     // Apply theme to body
-    document.body.className = theme === 'dark' ? 'dark-theme' : 'light-theme';
+    const newClass = theme === 'dark' ? 'dark-theme' : 'light-theme';
+    console.log('Applying theme class:', newClass);
+    
+    // Remove both classes first to ensure clean state
+    document.body.classList.remove('dark-theme', 'light-theme');
+    // Then add the correct one
+    document.body.classList.add(newClass);
+    
+    // For debugging - log the current body classes
+    console.log('Body classes after update:', document.body.className);
     
     // Save theme to local storage
     try {
       localStorage.setItem('jogIn-theme', theme);
+      console.log('Saved theme to localStorage:', theme);
     } catch (error) {
       console.error('Error saving to localStorage:', error);
     }
   }, [theme, mounted]);
 
   const toggleTheme = () => {
-    setTheme(prevTheme => (prevTheme === 'dark' ? 'light' : 'dark'));
+    console.log('Toggle theme called. Current theme:', theme);
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    console.log('Switching to theme:', newTheme);
+    setTheme(newTheme);
   };
 
   return (

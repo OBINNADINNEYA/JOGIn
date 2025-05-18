@@ -105,7 +105,12 @@ export default function ProfilePage() {
   };
 
   const handleEditProfileClick = () => {
+    console.log('Navigating to settings page');
     router.push('/settings');
+    // Add a fallback in case router.push doesn't work immediately
+    setTimeout(() => {
+      window.location.href = '/settings';
+    }, 100);
   };
 
   if (loading) {

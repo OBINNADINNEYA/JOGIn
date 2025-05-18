@@ -2,6 +2,7 @@
 
 import Navbar from '../Navigation/Navbar';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useEffect } from 'react';
 
 export default function MainLayout({
   children,
@@ -9,6 +10,18 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   const { theme } = useTheme();
+  
+  // Additional effect to ensure theme classes are applied
+  useEffect(() => {
+    const themeClass = theme === 'dark' ? 'dark-theme' : 'light-theme';
+    
+    // Remove both theme classes first
+    document.body.classList.remove('dark-theme', 'light-theme');
+    // Add the current theme class
+    document.body.classList.add(themeClass);
+    
+    console.log('MainLayout applied theme:', themeClass);
+  }, [theme]);
   
   return (
     <div className={`min-h-screen text-primary relative overflow-hidden ${theme === 'dark' ? 'dark-theme' : 'light-theme'}`}>
@@ -25,8 +38,8 @@ export default function MainLayout({
         </div>
         
         {/* Animated gradient accent */}
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-premium-accent rounded-full filter blur-[100px] opacity-10 animate-pulse-slow"></div>
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-premium-accent rounded-full filter blur-[100px] opacity-10 animate-pulse-slow" 
+        <div className={`absolute -bottom-40 -left-40 w-80 h-80 ${theme === 'dark' ? 'bg-premium-accent' : 'bg-premium-accentDark'} rounded-full filter blur-[100px] opacity-10 animate-pulse-slow`}></div>
+        <div className={`absolute -top-40 -right-40 w-80 h-80 ${theme === 'dark' ? 'bg-premium-accent' : 'bg-premium-accentDark'} rounded-full filter blur-[100px] opacity-10 animate-pulse-slow`} 
              style={{ animationDelay: '2s' }}></div>
       </div>
       
