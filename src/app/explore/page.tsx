@@ -28,6 +28,29 @@ export default function ExplorePage() {
   useEffect(() => {
     checkUser();
     fetchClubs();
+    
+    // Set up real-time subscription for membership changes
+    const membershipSubscription = supabase
+      .channel('membership-changes-explore')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'run_club_memberships'
+        },
+        (payload) => {
+          console.log('Membership change detected in explore page:', payload);
+          // Immediately refresh clubs data when membership changes
+          fetchClubs();
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      // Clean up subscription on component unmount
+      supabase.removeChannel(membershipSubscription);
+    };
   }, []);
 
   const checkUser = async () => {
@@ -147,17 +170,18 @@ export default function ExplorePage() {
 
       console.log('Successfully inserted membership');
       
-      // Update the clubs array with the new member count for the joined club
+      // Immediately update the local state to avoid waiting for the subscription
       setClubs(prevClubs => {
-        const updatedClubs = prevClubs.map(club => {
+        return prevClubs.map(club => {
           if (club.id === clubId) {
-            console.log('Updating club in state:', club);
-            // With our new approach, member_count is always a simple number
-            const newCount = typeof club.member_count === 'number' 
-              ? club.member_count + 1 
-              : 1;
+            console.log(`Updating club ${club.name} member count locally`);
+            const currentCount = typeof club.member_count === 'number' 
+              ? club.member_count 
+              : (club.member_count as any)?.count || 0;
             
-            console.log('New member count:', newCount);
+            const newCount = currentCount + 1;
+            console.log(`Previous count: ${currentCount}, New count: ${newCount}`);
+            
             return {
               ...club,
               member_count: newCount
@@ -165,15 +189,15 @@ export default function ExplorePage() {
           }
           return club;
         });
-        console.log('Updated clubs state:', updatedClubs);
-        return updatedClubs;
       });
 
       alert('Successfully joined the club!');
       
-      // Fetch all clubs again to ensure counts are correct
-      console.log('Refreshing clubs data...');
-      await fetchClubs();
+      // Force a refresh of the data to ensure sync
+      setTimeout(() => {
+        fetchClubs();
+      }, 500);
+      
     } catch (error: any) {
       console.error('Error joining club:', error);
       alert('Error joining club. Please try again.');

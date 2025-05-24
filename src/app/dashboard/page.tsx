@@ -30,6 +30,37 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchClubs();
     fetchSubscription();
+    
+    // Set up real-time subscription for membership changes
+    const membershipSubscription = supabase
+      .channel('membership-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'run_club_memberships'
+        },
+        (payload) => {
+          console.log('Membership change detected in dashboard:', payload);
+          // Get the club_id from the payload
+          const clubId = payload.new?.club_id || payload.old?.club_id;
+          if (clubId) {
+            console.log(`Updating member count for club: ${clubId}`);
+            // Refresh the specific club member count
+            updateClubMemberCount(clubId);
+          } else {
+            // Fallback to refresh all clubs if we can't determine the club_id
+            fetchClubs();
+          }
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      // Clean up subscription on component unmount
+      supabase.removeChannel(membershipSubscription);
+    };
   }, []);
 
   const fetchSubscription = async () => {
@@ -124,6 +155,40 @@ export default function DashboardPage() {
   // Helper function to get member count
   const getMemberCount = (count: number | null): number => {
     return count || 0;
+  };
+
+  // Add a new function to update a single club's member count
+  const updateClubMemberCount = async (clubId: string) => {
+    try {
+      // Check if the club is in our state
+      const clubToUpdate = clubs.find(club => club.id === clubId);
+      if (!clubToUpdate) return;
+      
+      // Get the updated count
+      const { count, error: countError } = await supabase
+        .from('run_club_memberships')
+        .select('*', { count: 'exact', head: true })
+        .eq('club_id', clubId);
+        
+      if (countError) {
+        console.error('Error counting memberships for club:', clubId, countError);
+        return;
+      }
+      
+      console.log(`Updated count for club ${clubId}: ${count}`);
+      
+      // Update the state with the new count
+      setClubs(prevClubs => {
+        return prevClubs.map(club => {
+          if (club.id === clubId) {
+            return { ...club, member_count: count || 0 };
+          }
+          return club;
+        });
+      });
+    } catch (error) {
+      console.error('Error updating club member count:', error);
+    }
   };
 
   return (

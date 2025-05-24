@@ -37,6 +37,11 @@ export default function Navbar() {
     };
   }, []);
 
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     router.push('/');
@@ -63,13 +68,13 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link 
             href="/"
-            className="flex-shrink-0 flex items-center space-x-2"
+            className="flex-shrink-0 flex items-center space-x-2 py-2"
           >
-            <span className="text-2xl font-bold font-display heading-gradient">
+            <span className="text-xl md:text-2xl font-bold font-display heading-gradient">
               JOGIn
             </span>
           </Link>
@@ -131,7 +136,9 @@ export default function Navbar() {
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-xl text-gray-400 hover:text-white hover:bg-premium-gray/50 focus:outline-none focus:ring-2 focus:ring-premium-accent"
+              className="inline-flex items-center justify-center p-3 rounded-xl text-gray-400 hover:text-white hover:bg-premium-gray/50 focus:outline-none focus:ring-2 focus:ring-premium-accent"
+              aria-expanded={isMenuOpen}
+              aria-label="Toggle navigation menu"
             >
               <span className="sr-only">Open main menu</span>
               {!isMenuOpen ? (
@@ -150,13 +157,13 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       <div 
-        className={`md:hidden transition-all duration-500 transform ${
+        className={`md:hidden transition-all duration-300 transform ${
           isMenuOpen 
             ? 'translate-y-0 opacity-100' 
-            : '-translate-y-10 opacity-0 pointer-events-none'
+            : '-translate-y-5 opacity-0 pointer-events-none'
         }`}
       >
-        <div className="px-2 pt-4 pb-6 space-y-2 backdrop-blur-xl bg-premium-black/90 border-b border-premium-border">
+        <div className="px-3 pt-3 pb-4 space-y-2 backdrop-blur-xl bg-premium-black/90 border-b border-premium-border">
           {user ? (
             <>
               {/* Navigation links for authenticated mobile users */}
@@ -164,7 +171,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`block px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 ${
+                  className={`flex items-center px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 ${
                     pathname === link.href
                       ? 'bg-premium-accent/10 text-premium-accent'
                       : 'text-gray-300 hover:text-white hover:bg-white/5'
@@ -179,7 +186,7 @@ export default function Navbar() {
                   handleSignOut();
                   setIsMenuOpen(false);
                 }}
-                className="block w-full text-left px-4 py-3 rounded-xl text-base font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all duration-300"
+                className="flex w-full text-left px-4 py-3 rounded-xl text-base font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all duration-300"
               >
                 Sign Out
               </button>
@@ -187,13 +194,13 @@ export default function Navbar() {
           ) : (
             <>
               {/* Navigation links for unauthenticated mobile users */}
-              {navLinks.map((link) => (
+              {navLinks.map((link, index) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   className={link.href === '/auth/sign-up' 
-                    ? 'premium-button block text-center py-3 rounded-xl text-base font-medium'
-                    : `block px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 ${
+                    ? 'premium-button flex justify-center py-3 my-1 rounded-xl text-base font-medium'
+                    : `flex items-center px-4 py-3 rounded-xl text-base font-medium transition-all duration-300 ${
                         pathname === link.href
                           ? 'bg-premium-accent/10 text-premium-accent'
                           : 'text-gray-300 hover:text-white hover:bg-white/5'

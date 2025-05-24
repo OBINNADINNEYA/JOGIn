@@ -248,4 +248,51 @@ h1, h2, h3, h4, h5 {
 
 .heading-gradient {
   @apply bg-premium-gradient bg-clip-text text-transparent;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .premium-card {
+    padding: 1.25rem !important;
+    border-radius: 12px !important;
+  }
+  
+  h1 {
+    font-size: 1.75rem !important;
+    line-height: 2rem !important;
+  }
+  
+  h2 {
+    font-size: 1.375rem !important;
+    line-height: 1.75rem !important;
+  }
+  
+  .premium-button, .premium-button-secondary {
+    padding: 0.625rem 1rem !important;
+    font-size: 0.875rem !important;
+  }
+  
+  /* Fix mobile touch targets */
+  button, a {
+    padding: 0.5rem 0.75rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Fix mobile scrolling */
+  .overscroll-none {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Better mobile form inputs */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+    padding: 0.75rem !important;
+  }
 } 

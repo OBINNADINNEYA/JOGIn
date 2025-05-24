@@ -31,6 +31,48 @@ export default function ProfilePage() {
   useEffect(() => {
     fetchProfile();
     fetchStats();
+    
+    // Set up real-time subscription for membership changes
+    const membershipSubscription = supabase
+      .channel('membership-changes-profile')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'run_club_memberships'
+        },
+        (payload) => {
+          console.log('Membership change detected in profile page:', payload);
+          // Refresh stats when membership changes
+          fetchStats();
+        }
+      )
+      .subscribe();
+      
+    // Set up real-time subscription for club changes
+    const clubsSubscription = supabase
+      .channel('clubs-changes-profile')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'run_clubs'
+        },
+        (payload) => {
+          console.log('Club change detected in profile page:', payload);
+          // Refresh stats when clubs change
+          fetchStats();
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      // Clean up subscriptions on component unmount
+      supabase.removeChannel(membershipSubscription);
+      supabase.removeChannel(clubsSubscription);
+    };
   }, []);
 
   const fetchProfile = async () => {
