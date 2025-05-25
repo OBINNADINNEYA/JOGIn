@@ -196,7 +196,7 @@ export default function ExplorePage() {
       // Force a refresh of the data to ensure sync
       setTimeout(() => {
         fetchClubs();
-      }, 500);
+      }, 100);
       
     } catch (error: any) {
       console.error('Error joining club:', error);

@@ -25,6 +25,29 @@ export default function MembersPage() {
 
   useEffect(() => {
     fetchUserRoleAndClubs();
+    
+    // Set up real-time subscription for membership changes
+    const membershipSubscription = supabase
+      .channel('membership-changes-members')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'run_club_memberships'
+        },
+        (payload) => {
+          console.log('Membership change detected in members page:', payload);
+          // Refresh the list when membership changes
+          fetchUserRoleAndClubs();
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      // Clean up subscription on component unmount
+      supabase.removeChannel(membershipSubscription);
+    };
   }, []);
 
   const fetchUserRoleAndClubs = async () => {
@@ -120,8 +143,23 @@ export default function MembersPage() {
 
       if (error) throw error;
 
-      // Refresh the list
-      fetchUserRoleAndClubs();
+      // Update local state immediately
+      setClubs(prevClubs => {
+        return prevClubs.map(club => {
+          if (club.id === clubId) {
+            return {
+              ...club,
+              members: club.members.filter(member => member.id !== memberId)
+            };
+          }
+          return club;
+        });
+      });
+
+      // Force a refresh after a short delay to ensure consistency
+      setTimeout(() => {
+        fetchUserRoleAndClubs();
+      }, 100);
     } catch (error) {
       console.error('Error removing member:', error);
       alert('Error removing member. Please try again.');

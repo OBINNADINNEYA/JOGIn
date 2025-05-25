@@ -186,6 +186,11 @@ export default function DashboardPage() {
           return club;
         });
       });
+
+      // Force a refresh of all clubs to ensure consistency
+      setTimeout(() => {
+        fetchClubs();
+      }, 100);
     } catch (error) {
       console.error('Error updating club member count:', error);
     }
